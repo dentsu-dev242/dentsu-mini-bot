@@ -191,4 +191,24 @@ function buildWaMenu({ user = "User" } = {}) {
   return header + "\n\n" + blocks.join("\n\n") + "\n\n" + displayOnly + footer;
 }
 
-module.exports = { buildTelegramMenu, buildWaMenu, uptime, SECTIONS: mergedSections() };
+
+function splitWaMenu(text, maxLength = 3500) {
+  const value = String(text ?? "");
+  if (!Number.isInteger(maxLength) || maxLength < 1) throw new RangeError("maxLength must be a positive integer");
+  const chunks = [];
+  let start = 0;
+  while (start < value.length) {
+    let end = Math.min(start + maxLength, value.length);
+    if (end < value.length) {
+      const paragraphBreak = value.lastIndexOf("\n\n", end - 2);
+      const lineBreak = value.lastIndexOf("\n", end - 1);
+      if (paragraphBreak > start + Math.floor(maxLength / 2)) end = paragraphBreak + 2;
+      else if (lineBreak > start + Math.floor(maxLength / 2)) end = lineBreak + 1;
+    }
+    chunks.push(value.slice(start, end));
+    start = end;
+  }
+  return chunks;
+}
+
+module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, SECTIONS: mergedSections() };
