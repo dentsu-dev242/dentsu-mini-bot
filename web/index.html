@@ -85,6 +85,24 @@
         <span class="warning-mark" aria-hidden="true">!</span>
         <p data-i18n="securityText">Utilise uniquement ton propre compte. Ne partage jamais ton code ni ton QR.</p>
       </aside>
+
+      <section class="media-card" aria-labelledby="video-title">
+        <div class="media-heading">
+          <div>
+            <p class="media-eyebrow" data-i18n="mediaEyebrow">SON EN BOUCLE</p>
+            <h2 id="video-title" data-i18n="mediaTitle">Musique de DENTSU</h2>
+            <p class="media-description" data-i18n="mediaDescription">La vidéo tourne en boucle. Active le son pour écouter.</p>
+          </div>
+          <button class="media-sound-button" id="video-sound-toggle" type="button" aria-pressed="false">Activer le son</button>
+        </div>
+        <div class="video-frame">
+          <video id="pairing-video" autoplay muted loop playsinline controls preload="metadata" aria-labelledby="video-title">
+            <source src="https://ganga--link--ghhzdp9sv8hk.code.run/i/7qo7cqnwq0.mp4" type="video/mp4">
+            Ton navigateur ne prend pas en charge la lecture vidéo.
+          </video>
+        </div>
+        <p class="video-status" id="video-status" role="status" aria-live="polite" hidden></p>
+      </section>
     </section>
 
     <footer class="footer"><span>by NatsuTech's Dev 🇨🇬</span></footer>

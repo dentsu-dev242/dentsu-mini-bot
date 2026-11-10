@@ -19,6 +19,8 @@
       qrReady: "QR prêt à scanner.", qrConnected: "WhatsApp est connecté ✓", qrExpired: "Le QR a expiré. Génère-en un nouveau.",
       qrFailed: "Impossible de créer le QR. Réessaie plus tard.", qrInstructions: "Dans WhatsApp, ouvre Appareils connectés, puis scanne ce QR.",
       securityText: "Utilise uniquement ton propre compte. Ne partage jamais ton code ni ton QR.",
+      mediaEyebrow: "SON EN BOUCLE", mediaTitle: "Musique de DENTSU", mediaDescription: "La vidéo tourne en boucle. Active le son pour écouter.",
+      videoSoundOn: "Activer le son", videoSoundOff: "Couper le son", videoPlaybackBlocked: "Appuie sur lecture dans la vidéo pour la démarrer.", videoLoadError: "La vidéo n’a pas pu être chargée.",
       themeToLight: "Mode clair", themeToDark: "Mode sombre", themeLightAria: "Activer le mode clair", themeDarkAria: "Activer le mode sombre"
     },
     en: {
@@ -40,6 +42,8 @@
       qrReady: "QR ready to scan.", qrConnected: "WhatsApp connected ✓", qrExpired: "The QR expired. Generate a new one.",
       qrFailed: "Could not create the QR. Try again later.", qrInstructions: "Open Linked devices in WhatsApp, then scan this QR.",
       securityText: "Only connect your own account. Never share your code or QR.",
+      mediaEyebrow: "LOOPING MUSIC", mediaTitle: "DENTSU music", mediaDescription: "The video loops. Turn on sound to listen.",
+      videoSoundOn: "Turn on sound", videoSoundOff: "Mute sound", videoPlaybackBlocked: "Press play on the video to start it.", videoLoadError: "The video could not be loaded.",
       themeToLight: "Light mode", themeToDark: "Dark mode", themeLightAria: "Switch to light mode", themeDarkAria: "Switch to dark mode"
     }
   };
@@ -52,6 +56,14 @@
   } catch {}
 
   function t(key) { return copy[locale][key] || copy.fr[key] || key; }
+  const pairingVideo = $("#pairing-video");
+  const videoSoundToggle = $("#video-sound-toggle");
+  const videoStatus = $("#video-status");
+  function updateVideoSoundButton() {
+    if (!pairingVideo || !videoSoundToggle) return;
+    videoSoundToggle.textContent = t(pairingVideo.muted ? "videoSoundOn" : "videoSoundOff");
+    videoSoundToggle.setAttribute("aria-pressed", String(!pairingVideo.muted));
+  }
   function applyLanguage() {
     document.documentElement.lang = locale;
     document.title = t("title");
@@ -59,6 +71,7 @@
     document.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
     document.querySelectorAll("[data-language]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.language === locale)));
+    updateVideoSoundButton();
     applyTheme();
     if (codeActive) updateExpiry();
   }
@@ -286,6 +299,21 @@
     theme = theme === "dark" ? "light" : "dark";
     try { localStorage.setItem("dentsu-theme", theme); } catch {}
     applyTheme();
+  });
+  videoSoundToggle.addEventListener("click", async () => {
+    pairingVideo.muted = !pairingVideo.muted;
+    updateVideoSoundButton();
+    videoStatus.hidden = true;
+    if (pairingVideo.paused) {
+      try { await pairingVideo.play(); } catch {
+        videoStatus.textContent = t("videoPlaybackBlocked");
+        videoStatus.hidden = false;
+      }
+    }
+  });
+  pairingVideo.addEventListener("error", () => {
+    videoStatus.textContent = t("videoLoadError");
+    videoStatus.hidden = false;
   });
   applyLanguage();
   setMethod("code");
