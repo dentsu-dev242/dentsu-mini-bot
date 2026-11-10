@@ -96,7 +96,8 @@ const TG_SECTIONS = [
   ]},
   { icon: "👑", name: "ADMIN", items: [
     "/ban 242xxxx [n]",
-    "/broadcast <msg>",
+    "/broadcast <msg> (users who /start)",
+    "/stop — unsubscribe from broadcasts",
     "/listpair",
   ]},
 
