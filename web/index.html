@@ -4,22 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#12070b">
-  <meta name="description" content="Jumelle ton compte WhatsApp à DENTSU MINI BOT avec un code temporaire ou un QR sécurisé.">
+  <meta name="description" content="Jumelle ton compte WhatsApp à DENTSU MINIBOT avec un code temporaire ou un QR sécurisé.">
   <title>DENTSU MINI BOT · Jumelage WhatsApp</title>
-  <link rel="stylesheet" href="/style.css?v=dark-red-pairing">
-  <script src="/app.js?v=dark-red-pairing" defer></script>
+  <link rel="stylesheet" href="/style.css?v=mobile-consent-layout">
+  <script src="/app.js?v=mobile-consent-layout" defer></script>
 </head>
 <body>
   <main class="page-shell">
     <header class="topbar">
-      <a class="brand" href="/" aria-label="DENTSU MINI BOT, accueil">
+      <a class="brand" href="/" aria-label="DENTSU MINIBOT, accueil">
         <img src="/assets/dentsu-mini-bot-avatar.png" alt="" class="brand-image">
-        <span class="brand-name">DENTSU MINI BOT</span>
+        <span class="brand-name">DENTSU MINIBOT</span>
       </a>
-    </header>
-
-    <section class="pair-card" aria-labelledby="page-title">
-      <div class="card-tools">
+      <div class="topbar-tools">
         <div class="language-switch" role="group" aria-label="Language">
           <button class="language-button" type="button" data-language="fr" aria-pressed="true">FR</button>
           <button class="language-button" type="button" data-language="en" aria-pressed="false">EN</button>
@@ -30,10 +27,30 @@
           <span id="theme-label">Mode clair</span>
         </button>
       </div>
+    </header>
 
+    <section class="media-card" aria-labelledby="video-title">
+      <div class="media-heading">
+        <div>
+          <p class="media-eyebrow" data-i18n="mediaEyebrow">SON EN BOUCLE</p>
+          <h2 id="video-title" data-i18n="mediaTitle">Musique de DENTSU</h2>
+          <p class="media-description" data-i18n="mediaDescription">La vidéo tourne en boucle. Active le son pour écouter.</p>
+        </div>
+        <button class="media-sound-button" id="video-sound-toggle" type="button" aria-pressed="false">Activer le son</button>
+      </div>
+      <div class="video-frame">
+        <video id="pairing-video" autoplay muted loop playsinline controls preload="metadata" aria-labelledby="video-title">
+          <source data-src="https://ganga--link--ghhzdp9sv8hk.code.run/i/7qo7cqnwq0.mp4" type="video/mp4">
+          Ton navigateur ne prend pas en charge la lecture vidéo.
+        </video>
+      </div>
+      <p class="video-status" id="video-status" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="pair-card" aria-labelledby="page-title">
       <div class="pair-intro">
         <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span><span data-i18n="eyebrow">Jumelage WhatsApp sécurisé</span></p>
-        <h1 id="page-title" data-i18n-html="pageTitle">Connecter <span>WhatsApp</span></h1>
+        <h1 id="page-title" data-i18n="pageTitle">DENTSU MINIBOT</h1>
         <p class="intro" data-i18n="intro">Entre ton numéro ou utilise un QR pour relier ton compte au bot.</p>
       </div>
 
@@ -86,26 +103,27 @@
         <p data-i18n="securityText">Utilise uniquement ton propre compte. Ne partage jamais ton code ni ton QR.</p>
       </aside>
 
-      <section class="media-card" aria-labelledby="video-title">
-        <div class="media-heading">
-          <div>
-            <p class="media-eyebrow" data-i18n="mediaEyebrow">SON EN BOUCLE</p>
-            <h2 id="video-title" data-i18n="mediaTitle">Musique de DENTSU</h2>
-            <p class="media-description" data-i18n="mediaDescription">La vidéo tourne en boucle. Active le son pour écouter.</p>
-          </div>
-          <button class="media-sound-button" id="video-sound-toggle" type="button" aria-pressed="false">Activer le son</button>
-        </div>
-        <div class="video-frame">
-          <video id="pairing-video" autoplay muted loop playsinline controls preload="metadata" aria-labelledby="video-title">
-            <source src="https://ganga--link--ghhzdp9sv8hk.code.run/i/7qo7cqnwq0.mp4" type="video/mp4">
-            Ton navigateur ne prend pas en charge la lecture vidéo.
-          </video>
-        </div>
-        <p class="video-status" id="video-status" role="status" aria-live="polite" hidden></p>
-      </section>
+
     </section>
 
     <footer class="footer"><span>by NatsuTech's Dev 🇨🇬</span></footer>
   </main>
+  <div class="consent-overlay" id="consent-gate" hidden>
+    <section class="consent-dialog" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+      <p class="consent-eyebrow" data-i18n="consentEyebrow">AVANT DE CONTINUER</p>
+      <h2 id="consent-title" data-i18n="consentTitle">Confidentialité et conditions</h2>
+      <p class="consent-copy" data-i18n="consentIntro">Nous mémorisons ton choix avec un cookie nécessaire. La langue et le thème peuvent être conservés sur cet appareil. Aucun cookie publicitaire ou analytique n’est configuré.</p>
+      <label class="consent-option">
+        <input type="checkbox" id="consent-cookie">
+        <span data-i18n="consentCookieChoice">J’accepte le cookie nécessaire au consentement et le stockage de mes préférences.</span>
+      </label>
+      <label class="consent-option">
+        <input type="checkbox" id="consent-terms">
+        <span data-i18n-html="consentTerms">J’ai lu et j’accepte les <a href="/terms.txt" target="_blank" rel="noopener">conditions d’utilisation</a>.</span>
+      </label>
+      <p class="consent-error" id="consent-error" role="status" aria-live="polite" hidden></p>
+      <button class="primary-button consent-accept" id="consent-accept" type="button" disabled><span data-i18n="consentAccept">Accepter et continuer</span></button>
+    </section>
+  </div>
 </body>
 </html>

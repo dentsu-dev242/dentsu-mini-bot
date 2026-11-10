@@ -3,7 +3,7 @@
     fr: {
       title: "DENTSU MINI BOT · Jumelage WhatsApp",
       eyebrow: "Jumelage WhatsApp sécurisé",
-      pageTitle: 'Connecter <span>WhatsApp</span>',
+      pageTitle: "DENTSU MINIBOT",
       intro: "Entre ton numéro ou utilise un QR pour relier ton compte au bot.",
       methodCode: "Par numéro", methodQr: "Par QR",
       phoneLabel: "Ton numéro WhatsApp", phoneHint: "Indicatif international inclus, de 8 à 15 chiffres.",
@@ -21,12 +21,16 @@
       securityText: "Utilise uniquement ton propre compte. Ne partage jamais ton code ni ton QR.",
       mediaEyebrow: "SON EN BOUCLE", mediaTitle: "Musique de DENTSU", mediaDescription: "La vidéo tourne en boucle. Active le son pour écouter.",
       videoSoundOn: "Activer le son", videoSoundOff: "Couper le son", videoPlaybackBlocked: "Appuie sur lecture dans la vidéo pour la démarrer.", videoLoadError: "La vidéo n’a pas pu être chargée.",
+      consentEyebrow: "AVANT DE CONTINUER", consentTitle: "Confidentialité et conditions",
+      consentIntro: "Nous mémorisons ton choix avec un cookie nécessaire. La langue et le thème peuvent être conservés sur cet appareil. Aucun cookie publicitaire ou analytique n’est configuré.",
+      consentCookieChoice: "J’accepte le cookie nécessaire au consentement et le stockage de mes préférences (langue et thème).",
+      consentTerms: 'J’ai lu et j’accepte les <a href="/terms.txt" target="_blank" rel="noopener">conditions d’utilisation</a>.', consentAccept: "Accepter et continuer", consentStorageError: "Impossible d’enregistrer ton choix. Autorise les cookies nécessaires dans ton navigateur puis réessaie.",
       themeToLight: "Mode clair", themeToDark: "Mode sombre", themeLightAria: "Activer le mode clair", themeDarkAria: "Activer le mode sombre"
     },
     en: {
       title: "DENTSU MINI BOT · WhatsApp pairing",
       eyebrow: "Secure WhatsApp pairing",
-      pageTitle: 'Connect <span>WhatsApp</span>',
+      pageTitle: "DENTSU MINIBOT",
       intro: "Enter your number or use a QR code to link your account to the bot.",
       methodCode: "Phone number", methodQr: "QR code",
       phoneLabel: "Your WhatsApp number", phoneHint: "Include the country code; use 8 to 15 digits.",
@@ -44,21 +48,39 @@
       securityText: "Only connect your own account. Never share your code or QR.",
       mediaEyebrow: "LOOPING MUSIC", mediaTitle: "DENTSU music", mediaDescription: "The video loops. Turn on sound to listen.",
       videoSoundOn: "Turn on sound", videoSoundOff: "Mute sound", videoPlaybackBlocked: "Press play on the video to start it.", videoLoadError: "The video could not be loaded.",
+      consentEyebrow: "BEFORE YOU CONTINUE", consentTitle: "Privacy and terms",
+      consentIntro: "We remember your choice with a necessary consent cookie. Your language and theme may be saved on this device. No advertising or analytics cookies are configured.",
+      consentCookieChoice: "I accept the necessary consent cookie and the storage of my preferences (language and theme).",
+      consentTerms: 'I have read and accept the <a href="/terms.txt" target="_blank" rel="noopener">Terms of Use</a>.', consentAccept: "Accept and continue", consentStorageError: "Your choice could not be saved. Allow necessary cookies in your browser and try again.",
       themeToLight: "Light mode", themeToDark: "Dark mode", themeLightAria: "Switch to light mode", themeDarkAria: "Switch to dark mode"
     }
   };
   const $ = (selector) => document.querySelector(selector);
+  const consentCookieName = "dentsu-consent";
+  let consentGiven = document.cookie.split(";").some((entry) => entry.trim() === consentCookieName + "=terms-v1");
   let locale = "fr";
   let theme = "dark";
-  try {
-    locale = localStorage.getItem("dentsu-locale") === "en" ? "en" : "fr";
-    theme = localStorage.getItem("dentsu-theme") === "light" ? "light" : "dark";
-  } catch {}
+  if (consentGiven) {
+    try {
+      locale = localStorage.getItem("dentsu-locale") === "en" ? "en" : "fr";
+      theme = localStorage.getItem("dentsu-theme") === "light" ? "light" : "dark";
+    } catch {}
+  }
 
   function t(key) { return copy[locale][key] || copy.fr[key] || key; }
   const pairingVideo = $("#pairing-video");
   const videoSoundToggle = $("#video-sound-toggle");
   const videoStatus = $("#video-status");
+  function loadPairingVideo() {
+    const source = pairingVideo.querySelector("source");
+    if (!source || !source.dataset.src || source.src) return;
+    source.src = source.dataset.src;
+    pairingVideo.load();
+    pairingVideo.play().catch(() => {
+      videoStatus.textContent = t("videoPlaybackBlocked");
+      videoStatus.hidden = false;
+    });
+  }
   function updateVideoSoundButton() {
     if (!pairingVideo || !videoSoundToggle) return;
     videoSoundToggle.textContent = t(pairingVideo.muted ? "videoSoundOn" : "videoSoundOff");
@@ -290,16 +312,48 @@
   document.querySelectorAll("[data-language]").forEach((button) => {
     button.addEventListener("click", () => {
       locale = button.dataset.language === "en" ? "en" : "fr";
-      try { localStorage.setItem("dentsu-locale", locale); } catch {}
+      if (consentGiven) { try { localStorage.setItem("dentsu-locale", locale); } catch {} }
       applyLanguage();
     });
   });
   document.querySelectorAll("[data-method]").forEach((button) => button.addEventListener("click", () => setMethod(button.dataset.method)));
   $("#theme-toggle").addEventListener("click", () => {
     theme = theme === "dark" ? "light" : "dark";
-    try { localStorage.setItem("dentsu-theme", theme); } catch {}
+    if (consentGiven) { try { localStorage.setItem("dentsu-theme", theme); } catch {} }
     applyTheme();
   });
+  const consentGate = $("#consent-gate");
+  const consentCookieCheck = $("#consent-cookie");
+  const consentTermsCheck = $("#consent-terms");
+  const consentAccept = $("#consent-accept");
+  const consentError = $("#consent-error");
+  function updateConsentButton() {
+    consentAccept.disabled = !(consentCookieCheck.checked && consentTermsCheck.checked);
+    consentError.hidden = true;
+  }
+  consentCookieCheck.addEventListener("change", updateConsentButton);
+  consentTermsCheck.addEventListener("change", updateConsentButton);
+  consentAccept.addEventListener("click", () => {
+    if (consentAccept.disabled) return;
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = consentCookieName + "=terms-v1; Max-Age=15552000; Path=/; SameSite=Lax" + secure;
+    consentGiven = document.cookie.split(";").some((entry) => entry.trim() === consentCookieName + "=terms-v1");
+    if (!consentGiven) {
+      consentError.textContent = t("consentStorageError");
+      consentError.hidden = false;
+      return;
+    }
+    try {
+      localStorage.setItem("dentsu-locale", locale);
+      localStorage.setItem("dentsu-theme", theme);
+    } catch {}
+    consentGate.hidden = true;
+    document.body.classList.remove("consent-open");
+    loadPairingVideo();
+  });
+  consentGate.hidden = consentGiven;
+  document.body.classList.toggle("consent-open", !consentGiven);
+  if (consentGiven) loadPairingVideo();
   videoSoundToggle.addEventListener("click", async () => {
     pairingVideo.muted = !pairingVideo.muted;
     updateVideoSoundButton();
