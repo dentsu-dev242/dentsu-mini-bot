@@ -73,6 +73,53 @@ async function sendAud(ctx, url) {
   );
 }
 
+    function extractTikTokUrl(input) {
+    const candidate = String(input || "").match(/(?:https?:\/\/)?(?:(?:www|m|vm|vt)\.)?tiktok\.com\/[^\s<>"']+/i)?.[0];
+    if (!candidate) return null;
+    const cleaned = candidate.replace(/[)\],.!?;]+$/g, "");
+    const normalized = /^https?:\/\//i.test(cleaned) ? cleaned.replace(/^http:\/\//i, "https://") : "https://" + cleaned;
+    try {
+      const parsed = new URL(normalized);
+      const host = parsed.hostname.toLowerCase();
+      if (parsed.protocol !== "https:" || parsed.port || parsed.username || parsed.password || !(host === "tiktok.com" || host.endsWith(".tiktok.com"))) return null;
+      return parsed.href;
+    } catch { return null; }
+    }
+
+    async function handleTikTok(ctx) {
+    const tiktokUrl = extractTikTokUrl(ctx.text);
+    if (!tiktokUrl) return ctx.reply({ text: "❌ Exemple : " + config.PREFIX + "tiktok <lien TikTok public>" });
+    try {
+      const { data } = await axiosInstance.get("https://www.tikwm.com/api/", {
+        params: { url: tiktokUrl, hd: 1, web: 1, count: 1, cursor: 0 },
+        headers: {
+          Accept: "application/json",
+          Referer: "https://www.tikwm.com/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+        },
+        timeout: 30000,
+      });
+      if (data?.code !== undefined && Number(data.code) !== 0) throw new Error(data?.msg || "TikWM did not accept this link.");
+      const result = data?.data;
+      const candidates = [result?.hdplay, result?.play, result?.wmplay].filter((value) => typeof value === "string" && value.trim());
+      let mediaUrl = null;
+      for (const candidate of candidates) {
+        try {
+          const parsed = new URL(candidate, "https://www.tikwm.com");
+          if (parsed.protocol === "http:") parsed.protocol = "https:";
+          if (parsed.protocol === "https:") { mediaUrl = parsed.href; break; }
+        } catch {}
+      }
+      if (!mediaUrl) throw new Error(data?.msg || "No downloadable video was returned.");
+      const title = String(result?.title || "TikTok").replace(/[\r\n]+/g, " ").slice(0, 140);
+      await sendVid(ctx, mediaUrl, "🎵 " + title);
+    } catch (error) {
+      const detail = String(error?.message || "TikTok service unavailable").replace(/\s+/g, " ").slice(0, 160);
+      console.error("TikTok download error:", detail);
+      await ctx.reply({ text: "❌ TikTok : " + detail + ". Vérifie que la vidéo est publique et réessaie." });
+    }
+    }
+
 // ════════════════════════════════════════════════════════════════
 // 🤖 AI MENU  — API: https://chateverywhere.app/api/chat/ (POST GPT-4)
 //    Récupéré depuis case.js (case 'ai' / 'openai' / 'gpt4' / 'xxai')
@@ -242,22 +289,8 @@ async function handleYouTubeAudio(ctx) {
 
 reg(["play", "song", "play2"], handleYouTubeAudio, "DOWNLOAD", "Audio YouTube");
 
-// • tt / tiktok — API: https://api.tikwm.com/?url=...&hd=1
-reg(["tt", "tiktok"], async (ctx) => {
-  const tiktokUrl = ctx.text;
-  if (!tiktokUrl || !tiktokUrl.includes("tiktok.com"))
-    return ctx.reply({ text: `❌ Exemple : ${config.PREFIX}tt <lien tiktok>` });
-  try {
-    const { data } = await axiosInstance.get(
-      `https://api.tikwm.com/?url=${encodeURIComponent(tiktokUrl)}&hd=1`,
-    );
-    const v = data?.data?.hdplay || data?.data?.play;
-    if (!v) throw new Error("Video link not found");
-    await sendVid(ctx, v, `🎵 ${data?.data?.title || "TikTok"}`);
-  } catch (e) {
-    await ctx.reply({ text: `❌ tiktok : ${e.message}` });
-  }
-}, "DOWNLOAD", "TikTok");
+// • tt / tiktok — official TikWM API
+reg(["tt", "tiktok", "tikdl", "tiktok2"], handleTikTok, "DOWNLOAD", "TikTok video");
 
 // • aiimg — API: https://api.siputzx.my.id/api/ai/flux?prompt=...
 reg("aiimg", async (ctx) => {
@@ -660,7 +693,7 @@ reg("remind", (ctx) => {
 
 // ════════════════════════════════════════════════════════════════
 function listAll() { return Object.keys(REGISTRY).sort(); }
-module.exports = { REGISTRY, CATEGORIES, listAll, fetchAnimeImage, handleYouTubeAudio };
+module.exports = { REGISTRY, CATEGORIES, listAll, fetchAnimeImage, handleYouTubeAudio, handleTikTok };
 
 // ════════════════════════════════════════════════════════════════
 // 🔞 +18 — NSFW (waifu.pics nsfw)

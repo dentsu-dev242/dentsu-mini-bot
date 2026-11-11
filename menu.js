@@ -9,6 +9,7 @@
 */
 
 const config = require("./config");
+const { isPrivateMode } = require("./lib/bot-mode");
 const { spawnSync } = require("child_process");
 
 const SMALL_CAPS = { a: "ᴀ", b: "ʙ", c: "ᴄ", d: "ᴅ", e: "ᴇ", f: "ꜰ", g: "ɢ", h: "ʜ", i: "ɪ", j: "ᴊ", k: "ᴋ", l: "ʟ", m: "ᴍ", n: "ɴ", o: "ᴏ", p: "ᴘ", q: "ǫ", r: "ʀ", s: "ꜱ", t: "ᴛ", u: "ᴜ", v: "ᴠ", w: "ᴡ", x: "x", y: "ʏ", z: "ᴢ" };
@@ -156,7 +157,7 @@ function buildTelegramMenu() {
   const head =
 `╔══✦  ᴅᴇɴᴛsᴜ ᴍɪɴɪ ʙᴏᴛ  ✦══╗
 ║ 👨‍💻 Dev  : N̷a̷t̷s̷u̷ T̷e̷c̷h̷
-║ 💖 Mode  : Public
+║ 💖 Mode  : ${isPrivateMode() ? "Private" : "Public"}
 ╚══════════════════════╝`;
 
   const body = TG_SECTIONS.map((s) => {
@@ -175,7 +176,7 @@ function buildWaMenu({ user = "User" } = {}) {
   const header = [
     "╭━━━〔 🤖 ᴅᴇɴᴛsᴜ ᴍɪɴɪ ʙᴏᴛ 〕━━━╮",
     `┃ 👤 *${smallCaps(user)}*`,
-    `┃ ⚡ *ᴍᴏᴅᴇ* : ${smallCaps("Public")}`,
+    `┃ ⚡ *ᴍᴏᴅᴇ* : ${smallCaps(isPrivateMode() ? "Private" : "Public")}`,
     `┃ 📡 *ᴘʟᴀᴛғᴏʀᴍ* : ${smallCaps(platform)}`,
     `┃ ⚙️ *ᴘʀᴇꜰɪx* : ${smallCaps(config.PREFIX || ".")}`,
     `┃ 👨‍💻 *ᴅᴇᴠ* : ${smallCaps(config.DEV)}`,
