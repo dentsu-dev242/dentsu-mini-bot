@@ -13,7 +13,7 @@ const { spawnSync } = require("child_process");
 
 const SMALL_CAPS = { a: "ᴀ", b: "ʙ", c: "ᴄ", d: "ᴅ", e: "ᴇ", f: "ꜰ", g: "ɢ", h: "ʜ", i: "ɪ", j: "ᴊ", k: "ᴋ", l: "ʟ", m: "ᴍ", n: "ɴ", o: "ᴏ", p: "ᴘ", q: "ǫ", r: "ʀ", s: "ꜱ", t: "ᴛ", u: "ᴜ", v: "ᴠ", w: "ᴡ", x: "x", y: "ʏ", z: "ᴢ" };
 function smallCaps(value) { return String(value ?? "").replace(/[A-Za-z]/g, (letter) => SMALL_CAPS[letter.toLowerCase()] || letter); }
-const CURATED_COMMANDS = new Set(["menu","help","ping","alive","runtime","uptime","infobot","owner","pair","setpp","ban","unban","block","unblock","self","public","approuveall","play","song","tiktok","fb","ytmp4","ytmp3","apk","instagram","gitclone","mediafire","spotify","movie","yts","ytsearch","shorturl","qrcode","say","bible","tourl","vv","toimg","tomp3","sticker","s","getpp","hidetag","tagall","tagadmin","getalladmins","groupinfo","promote","demote","kick","mute","unmute","open","close","join","left","add","creategroup","resetlink","grouplink","listadmins","members","antilink","welcome","tag","glitchtext","writetext","advancedglow","typographytext","pixelglitch","neonglitch","flagtext","flag3dtext","logomaker","cartoonstyle","watercolortext","blackpinklogo","gradienttext","gfx","gfx2","gfx3","ai","gpt","bot","ask","natsu","rps","guess","coin","dice","hangman","tictactoe","joke","truth","dare","advice","funfact","dog","cat","meme","trivia","weather","translate","lyrics","genpass","calculate","wiki","dictionary","time","recipe","book","remind","myip","iplookup","currency","sciencefact","rejecteall","approve","reject","antispam"]);
+const CURATED_COMMANDS = new Set(["menu","help","ping","alive","runtime","uptime","infobot","owner","pair","setpp","ban","unban","block","unblock","self","public","approuveall","play","song","tiktok","fb","ytmp4","ytmp3","apk","instagram","gitclone","mediafire","spotify","movie","yts","ytsearch","shorturl","qrcode","say","bible","tourl","vv","toimg","tomp3","sticker","s","getpp","hidetag","tagall","tagadmin","getalladmins","groupinfo","promote","demote","kick","mute","unmute","open","close","join","left","add","creategroup","resetlink","grouplink","listadmins","members","antilink","welcome","tag","glitchtext","writetext","advancedglow","typographytext","pixelglitch","neonglitch","flagtext","flag3dtext","logomaker","cartoonstyle","watercolortext","blackpinklogo","gradienttext","gfx","gfx2","gfx3","ai","gpt","bot","ask","natsu","rps","guess","coin","dice","hangman","tictactoe","joke","truth","dare","advice","funfact","dog","cat","meme","trivia","weather","translate","lyrics","auto-react","genpass","calculate","wiki","dictionary","time","recipe","book","remind","myip","iplookup","currency","sciencefact","rejecteall","approve","reject","antispam"]);
 
 
 function uptime(sec) {
@@ -74,7 +74,7 @@ const SECTIONS = [
     "hentai","waifu","neko","trap","blowjob","paptt",
   ]},
   { icon: "ℹ️", name: "TOOL / HELP", items: [
-    "idch","react-ch","jid","dictionary","getpp","wiki","aiimg","qc","readqr",
+    "idch","react-ch","auto-react","jid","dictionary","getpp","wiki","aiimg","qc","readqr",
     "genpass","myip","iplookup","currency","time","recipe","horoscope","book",
     "remind","mathfact","sciencefact","calculate","weather",
   ]},
@@ -192,4 +192,24 @@ function buildWaMenu({ user = "User" } = {}) {
   return header + "\n\n" + blocks.join("\n\n") + "\n\n" + displayOnly + footer;
 }
 
-module.exports = { buildTelegramMenu, buildWaMenu, uptime, SECTIONS: mergedSections() };
+
+function splitWaMenu(text, maxLength = 3500) {
+  const value = String(text ?? "");
+  if (!Number.isInteger(maxLength) || maxLength < 1) throw new RangeError("maxLength must be a positive integer");
+  const chunks = [];
+  let start = 0;
+  while (start < value.length) {
+    let end = Math.min(start + maxLength, value.length);
+    if (end < value.length) {
+      const paragraphBreak = value.lastIndexOf("\n\n", end - 2);
+      const lineBreak = value.lastIndexOf("\n", end - 1);
+      if (paragraphBreak > start + Math.floor(maxLength / 2)) end = paragraphBreak + 2;
+      else if (lineBreak > start + Math.floor(maxLength / 2)) end = lineBreak + 1;
+    }
+    chunks.push(value.slice(start, end));
+    start = end;
+  }
+  return chunks;
+}
+
+module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, SECTIONS: mergedSections() };

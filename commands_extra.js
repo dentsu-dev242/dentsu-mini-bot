@@ -476,6 +476,31 @@ reg(["antispam"], (ctx) => {
   ctx.reply({ text: `Usage: ${config.PREFIX}antispam on/off  —  current: *${state.isAntispamOn(ctx.jid) ? "ON" : "OFF"}*` });
 }, "GROUP", "Antispam on/off");
 
+reg(["auto-react", "autoreact"], (ctx) => {
+  if (ctx.isGroup && !requireGroupAdmin(ctx)) return;
+  const action = (ctx.args[0] || "").trim();
+  const normalized = action.toLowerCase();
+  const current = state.getAutoReact(ctx.jid);
+
+  if (["off", "disable", "stop"].includes(normalized)) {
+    state.setAutoReact(ctx.jid, "");
+    return ctx.reply({ text: "🔕 Auto-react *OFF*." });
+  }
+  if (["on", "enable", "start"].includes(normalized)) {
+    const emoji = ctx.args[1] || current || "❤️";
+    state.setAutoReact(ctx.jid, emoji);
+    return ctx.reply({ text: "✅ Auto-react *ON* — réaction : *" + emoji + "*." });
+  }
+  if (action && !["status", "help"].includes(normalized)) {
+    state.setAutoReact(ctx.jid, action);
+    return ctx.reply({ text: "✅ Auto-react *ON* — réaction : *" + action + "*." });
+  }
+  ctx.reply({ text: current
+    ? "🔔 Auto-react *ON* — réaction : *" + current + "*.\nUsage : " + config.PREFIX + "auto-react off"
+    : "🔕 Auto-react *OFF*.\nUsage : " + config.PREFIX + "auto-react on [emoji]"
+  });
+}, "TOOL", "Automatic reactions");
+
 reg(["spam"], async (ctx) => {
   if (!ctx.isOwner) return ctx.reply({ text: "❌ Owner only." });
   const [target, n, ...rest] = ctx.args;
