@@ -186,12 +186,7 @@ function buildWaMenu({ user = "User" } = {}) {
   const blocks = mergedSections().map((section) =>
     menuBox(`${section.name} MENU`, section.items.map((command) => smallCaps(config.PREFIX + command))),
   );
-  const displayOnly = menuBox("CRASH MENU", [
-    ".crash-io 242xxx", ".delay-ghost 242xxx", ".invisible 242xxx",
-    ".fc-close 242xxx", ".dentsu 242xxx", ".bulldozer 242xxx",
-    ".kill-gc <link gc> or <in gc>", ".menace-gc <link gc> or <in gc>",
-  ].map(smallCaps));
-  return [header, ...blocks, displayOnly].join("\n\n");
+  return [header, ...blocks].join("\n\n");
 }
 
 function splitWaMenu(text, maxLength = 3500) {
