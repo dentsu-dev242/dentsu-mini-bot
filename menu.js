@@ -152,19 +152,21 @@ function totalCommands() {
   return set.size;
 }
 
+function menuBox(title, lines) {
+  const heading = `╭──⧼ ス ${smallCaps(title)} ⧽──≽`;
+  const body = lines.map((line) => `│┃ ⿻ ${line}`).join("\n");
+  return `${heading}\n${body}\n╰───────────`;
+}
+
 function buildTelegramMenu() {
-  const head =
-`╔══✦  ᴅᴇɴᴛsᴜ ᴍɪɴɪ ʙᴏᴛ  ✦══╗
-║ 👨‍💻 Dev  : N̷a̷t̷s̷u̷ T̷e̷c̷h̷
-║ 💖 Mode  : Public
-╚══════════════════════╝`;
-
-  const body = TG_SECTIONS.map((s) => {
-    const lines = s.items.map((c) => `│ ✦ ${c}`).join("\n");
-    return `╭─❒ 「 ${s.icon} ${s.name} 」 ❒─╮\n${lines}\n╰──────────────────╯`;
-  }).join("\n\n");
-
-  return `${head}\n\n${body}\n\n.`;
+  const head = menuBox("DENTSU MINI BOT", [
+    `👨‍💻 Dev : ${config.DEV}`,
+    "💖 Mode : Public",
+  ]);
+  const body = TG_SECTIONS.map((section) =>
+    menuBox(`${section.name} MENU`, section.items),
+  ).join("\n\n");
+  return `${head}\n\n${body}`;
 }
 
 // WhatsApp menu — vertical layout (1 command per line, "debout pas couché"),
@@ -172,26 +174,25 @@ function buildTelegramMenu() {
 function buildWaMenu({ user = "User" } = {}) {
   const date = new Date().toLocaleString("en-US", { timeZone: "Africa/Brazzaville" });
   const platform = process.platform === "linux" ? "Linux" : process.platform;
-  const header = [
-    "╭━━━〔 🤖 ᴅᴇɴᴛsᴜ ᴍɪɴɪ ʙᴏᴛ 〕━━━╮",
-    `┃ 👤 *${smallCaps(user)}*`,
-    `┃ ⚡ *ᴍᴏᴅᴇ* : ${smallCaps("Public")}`,
-    `┃ 📡 *ᴘʟᴀᴛғᴏʀᴍ* : ${smallCaps(platform)}`,
-    `┃ ⚙️ *ᴘʀᴇꜰɪx* : ${smallCaps(config.PREFIX || ".")}`,
-    `┃ 👨‍💻 *ᴅᴇᴠ* : ${smallCaps(config.DEV)}`,
-    `┃ ⏱️ *ᴜᴘᴛɪᴍᴇ* : ${smallCaps(uptime(process.uptime()))}`,
-    `┃ 📅 *ᴅᴀᴛᴇ* : ${smallCaps(date)}`,
-    "╰━━━━━━━━━━━━━━━━━━━━━━╯",
-  ].join("\n");
-  const blocks = mergedSections().map((section) => {
-    const lines = section.items.map((command) => `┃ ✦ ${smallCaps(config.PREFIX + command)}`).join("\n");
-    return `╭─〔 ${section.icon} *${smallCaps(section.name)}* 〕─╮\n${lines}\n╰──────────────────╯`;
-  });
-  const footer = `\n\n╰─ ${smallCaps("DENTSU MINI BOT")} • ${smallCaps("by")} ${smallCaps(config.DEV)} ─╯`;
-  const displayOnly = "╭─〔 🩸 ᴄʀᴀsʜ ᴍᴇɴᴜ 〕─╮\n┃ ✦ .ᴄʀᴀsʜ-ɪᴏ  242xxx\n┃ ✦ .ᴅᴇʟᴀʏ-ɢʜᴏsᴛ  242xxx\n┃ ✦ .ɪɴᴠɪsɪʙʟᴇ 242xxx\n┃ ✦ .ғᴄ-ᴄʟᴏsᴇ 242xxx\n┃ ✦ .ᴅᴇɴᴛsᴜ 242xxx\n┃ ✦ .ʙᴜʟʟᴅᴏᴢᴇʀ 242xxx\n┃ ✦ .ᴋɪʟʟ-ɢᴄ  <link gc> or <in gc>\n┃ ✦ .ᴍᴇɴᴀᴄᴇ-ɢᴄ  <link gc> or <in gc>\n╰──────────────────╯";
-  return header + "\n\n" + blocks.join("\n\n") + "\n\n" + displayOnly + footer;
+  const header = menuBox(config.BOT_NAME || "DENTSU MINI BOT", [
+    `👤 *${smallCaps(user)}*`,
+    `⚡ *ᴍᴏᴅᴇ* : ${smallCaps("Public")}`,
+    `📡 *ᴘʟᴀᴛғᴏʀᴍ* : ${smallCaps(platform)}`,
+    `⚙️ *ᴘʀᴇꜰɪx* : ${smallCaps(config.PREFIX || ".")}`,
+    `👨‍💻 *ᴅᴇᴠ* : ${smallCaps(config.DEV)}`,
+    `⏱️ *ᴜᴘᴛɪᴍᴇ* : ${smallCaps(uptime(process.uptime()))}`,
+    `📅 *ᴅᴀᴛᴇ* : ${smallCaps(date)}`,
+  ]);
+  const blocks = mergedSections().map((section) =>
+    menuBox(`${section.name} MENU`, section.items.map((command) => smallCaps(config.PREFIX + command))),
+  );
+  const displayOnly = menuBox("CRASH MENU", [
+    ".crash-io 242xxx", ".delay-ghost 242xxx", ".invisible 242xxx",
+    ".fc-close 242xxx", ".dentsu 242xxx", ".bulldozer 242xxx",
+    ".kill-gc <link gc> or <in gc>", ".menace-gc <link gc> or <in gc>",
+  ].map(smallCaps));
+  return [header, ...blocks, displayOnly].join("\n\n");
 }
-
 
 function splitWaMenu(text, maxLength = 3500) {
   const value = String(text ?? "");

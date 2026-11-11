@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/helpingdentsu-bot/dentsu-mini-bot">
-    <img src="assets/dentsu-mini-bot-avatar.png" width="150" alt="Dentsu Mini Bot logo" />
+    <img src="assets/dentsu-mini-bot-avatar.jpg" width="150" alt="Dentsu Mini Bot logo" />
   </a>
 </p>
 
