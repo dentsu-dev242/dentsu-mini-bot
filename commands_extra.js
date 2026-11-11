@@ -14,7 +14,6 @@ const crypto = require("crypto");
 const { spawn, spawnSync } = require("child_process");
 const config = require("./config");
 const main = require("./commands");
-const { setPrivateMode } = require("./lib/bot-mode");
 
 const REGISTRY = main.REGISTRY;
 const CATEGORIES = main.CATEGORIES;
@@ -204,15 +203,16 @@ reg("unblock", async (ctx) => {
   catch (e) { await ctx.reply({ text: `❌ ${e.message}` }); }
 }, "OWNER", "Unblock");
 
+let SELF_MODE = false;
 reg("self", (ctx) => {
   if (!ctx.isOwner) return ctx.reply({ text: "❌ Owner only." });
-  setPrivateMode(true);
+  SELF_MODE = true;
   ctx.reply({ text: "🔒 *SELF* mode enabled — only the owner can use the bot." });
 }, "OWNER", "Mode self");
 
 reg("public", (ctx) => {
   if (!ctx.isOwner) return ctx.reply({ text: "❌ Owner only." });
-  setPrivateMode(false);
+  SELF_MODE = false;
   ctx.reply({ text: "🌍 *PUBLIC* mode enabled — everyone can use the bot 💕" });
 }, "OWNER", "Mode public");
 
@@ -982,7 +982,27 @@ reg(["tts","speech"], async (ctx) => {
   } catch (e) { await ctx.reply({ text: `❌ tts: ${e.message}` }); }
 }, "VOICE", "Text-to-speech");
 
-// TikTok aliases are registered with the shared downloader in commands.js.
+// • tiktok — already exists; add a 2nd alias with better API fallback
+reg(["tikdl","tiktok2"], async (ctx) => {
+  const u = ctx.text;
+  if (!u || !u.includes("tiktok.com")) return ctx.reply({ text: `❌ Usage: ${config.PREFIX}tikdl <tiktok url>` });
+  const apis = [
+    () => ax.get(`https://api.tikwm.com/?url=${encodeURIComponent(u)}&hd=1`).then(r => r.data?.data?.hdplay || r.data?.data?.play),
+    () => ax.get(`https://api.giftedtech.web.id/api/download/tiktokdl?apikey=gifted&url=${encodeURIComponent(u)}`).then(r => r.data?.result?.video || r.data?.result?.download_url),
+    () => ax.get(`https://www.tikwm.com/api/?url=${encodeURIComponent(u)}`).then(r => r.data?.data?.play),
+  ];
+  for (const fn of apis) {
+    try {
+      const v = await fn();
+      if (v) {
+        await ctx.natsu.sendMessage(ctx.jid, { video: { url: v }, caption: "🎵 TikTok 💕", contextInfo: config.contextInfo }, { quoted: ctx.m });
+        return;
+      }
+    } catch {}
+  }
+  ctx.reply({ text: "❌ All TikTok APIs failed. Try again later." });
+}, "DOWNLOAD", "TikTok (multi-API)");
+
 // ════════════════════════════════════════════════════════════════
 // 💕💖 LOVE — paroles d'amour en français et english (féminin)
 // ════════════════════════════════════════════════════════════════

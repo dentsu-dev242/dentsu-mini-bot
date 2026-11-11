@@ -86,6 +86,6 @@ The disk preserves WhatsApp session files across restarts. Check Render's curren
 
 Released under the [MIT License](LICENSE).
 
-<strong>Built with care by NatsuTech's Dev 🇨🇬 · Alva'sDev </strong>
+<strong>Built with care by NatsuTech's Dev 🇨🇬 · Alva'sDev 🇨🇩</strong>
 
 [GitHub repository](https://github.com/helpingdentsu-bot/dentsu-mini-bot) · [Telegram community](https://t.me/DPLOIEMENT_DUN_BOT2) · [WhatsApp channel](https://whatsapp.com/channel/0029VbC1s7fFnSz1YhZYc01h)
