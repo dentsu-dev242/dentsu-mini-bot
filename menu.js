@@ -75,54 +75,63 @@ const CATEGORY_TO_SECTION = {
   LOVE: "LOVE",
 };
 function mergedSections() {
-    let REG = {};
-    try {
-      const main = require("./commands");
-      require("./commands_extra");
-      REG = main.REGISTRY || {};
-    } catch {}
+      let REG = {};
+      try {
+        const main = require("./commands");
+        require("./commands_extra");
+        REG = main.REGISTRY || {};
+      } catch {}
 
-    const BUILTIN = new Set(["menu", "help", "list", "ping", "alive", "runtime", "uptime", "infobot", "owner", "weather", "translate", "lyrics"]);
-    const DISABLED = new Set(["fc-close", "invisible", "crash-io", "delay-ghost", "kill-gc", "nullgc", "spam"]);
-    const ffmpegReady = () => {
-      try { return spawnSync("ffmpeg", ["-version"], { stdio: "ignore", timeout: 2000 }).status === 0; }
-      catch { return false; }
-    };
-    const canShow = (name) => {
-      if (DISABLED.has(name)) return false;
-      if (!BUILTIN.has(name) && typeof REG[name]?.handler !== "function") return false;
-      if (name === "movie" && !config.OMDB_API_KEY) return false;
-      if (/^gfx(?:[2-9]|1[0-2])?$/.test(name) && !config.NEXORACLE_API_KEY) return false;
-      if (name === "tomp3" && !ffmpegReady()) return false;
-      return true;
-    };
+      const BUILTIN = new Set(["menu", "help", "list", "ping", "alive", "runtime", "uptime", "infobot", "owner", "weather", "translate", "lyrics"]);
+      const DISABLED = new Set(["fc-close", "invisible", "crash-io", "delay-ghost", "kill-gc", "nullgc", "spam"]);
+      const ffmpegReady = () => {
+        try { return spawnSync("ffmpeg", ["-version"], { stdio: "ignore", timeout: 2000 }).status === 0; }
+        catch { return false; }
+      };
+      const canShow = (name) => {
+        if (DISABLED.has(name)) return false;
+        if (!BUILTIN.has(name) && typeof REG[name]?.handler !== "function") return false;
+        if (name === "movie" && !config.OMDB_API_KEY) return false;
+        if (/^gfx(?:[2-9]|1[0-2])?$/.test(name) && !config.NEXORACLE_API_KEY) return false;
+        if (name === "tomp3" && !ffmpegReady()) return false;
+        return true;
+      };
 
-    const sections = SECTION_ORDER.map((section) => ({ ...section, items: [] }));
-    const sectionByName = new Map(sections.map((section) => [section.name, section]));
-    const iconByName = new Map(SECTION_ORDER.map((section) => [section.name, section.icon]));
-    const getSection = (name) => {
-      if (!sectionByName.has(name)) {
-        const section = { icon: iconByName.get(name) || "🧰", name, items: [] };
-        sections.push(section);
-        sectionByName.set(name, section);
+      const sections = SECTION_ORDER.map((section) => ({ ...section, items: [] }));
+      const sectionByName = new Map(sections.map((section) => [section.name, section]));
+      const getSection = (name) => {
+        if (!sectionByName.has(name)) {
+          const section = { icon: "🧰", name, items: [] };
+          sections.push(section);
+          sectionByName.set(name, section);
+        }
+        return sectionByName.get(name);
+      };
+
+      for (const [command, definition] of Object.entries(REG)) {
+        if (!canShow(command)) continue;
+        const category = definition.category || "OTHER";
+        const sectionName = CATEGORY_TO_SECTION[category] || String(category).toUpperCase();
+        getSection(sectionName).items.push(command);
       }
-      return sectionByName.get(name);
-    };
+      const tools = getSection("TOOL / HELP");
+      for (const command of BUILTIN) if (canShow(command)) tools.items.push(command);
 
-    for (const [command, definition] of Object.entries(REG)) {
-      if (!canShow(command)) continue;
-      const category = definition.category || "OTHER";
-      const sectionName = CATEGORY_TO_SECTION[category] || String(category).toUpperCase();
-      getSection(sectionName).items.push(command);
-    }
-    const tools = getSection("TOOL / HELP");
-    for (const command of BUILTIN) if (canShow(command)) tools.items.push(command);
-
-    const preferred = new Map(SECTION_ORDER.map((section, index) => [section.name, index]));
-    return sections
-      .map((section) => ({ ...section, items: [...new Set(section.items)].sort((a, b) => a.localeCompare(b)) }))
-      .filter((section) => section.items.length > 0)
-      .sort((a, b) => (preferred.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (preferred.get(b.name) ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name));
+      const preferred = new Map(SECTION_ORDER.map((section, index) => [section.name, index]));
+      const seenCommands = new Set();
+      return sections
+        .map((section) => ({
+          ...section,
+          items: [...new Set(section.items)]
+            .filter((command) => {
+              if (seenCommands.has(command)) return false;
+              seenCommands.add(command);
+              return true;
+            })
+            .sort((a, b) => a.localeCompare(b)),
+        }))
+        .filter((section) => section.items.length > 0)
+        .sort((a, b) => (preferred.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (preferred.get(b.name) ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name));
     }
     
 function totalCommands() {
