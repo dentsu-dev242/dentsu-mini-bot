@@ -2,7 +2,7 @@
   "name": "dentsu-mini-bot",
   "version": "7.6.0",
   "description": "ᴍɪɴɪ ᴅᴇɴᴛsᴜ ʙᴏᴛ — WhatsApp × Telegram Bot by NatsuTech's Dev 🇨🇬",
-  "main": "index.js",
+  "main": "dentsu.js",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -22,7 +22,8 @@
     "dentsu"
   ],
   "scripts": {
-    "start": "node index.js"
+    "start": "node dentsu.js",
+    "build:bundle": "node scripts/build-dentsu.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "7.0.0-rc14",
