@@ -20,7 +20,7 @@ module.exports = {
   NEXORACLE_API_KEY: process.env.NEXORACLE_API_KEY || "",
   OMDB_API_KEY: process.env.OMDB_API_KEY || "",
 
-  MENU_IMAGE: path.join(__dirname, "assets", "dentsu-mini-bot-avatar.png"),
+  MENU_IMAGE: path.join(__dirname, "assets", "dentsu-mini-bot-avatar.jpg"),
   MENU_IMAGE_FALLBACK: "",
 
   OWNERS: ["242065141056", "242050471017"],
