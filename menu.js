@@ -169,8 +169,12 @@ function buildTelegramMenu() {
   return `${head}\n\n${body}`;
 }
 
-// WhatsApp menu — vertical layout (1 command per line, "debout pas couché"),
-// chunked to respect WhatsApp's ~4096 char message limit.
+// Limite d'un message texte WhatsApp (large, ~65 535 caractères).
+// Le menu complet doit tenir dans UN SEUL message : on ne découpe plus.
+const WA_TEXT_LIMIT = 65535;
+
+// WhatsApp menu — vertical layout (1 command per line, "debout pas couché").
+// Retourne UNE seule chaîne contenant TOUTES les catégories.
 function buildWaMenu({ user = "User" } = {}) {
   const date = new Date().toLocaleString("en-US", { timeZone: "Africa/Brazzaville" });
   const platform = process.platform === "linux" ? "Linux" : process.platform;
@@ -208,4 +212,4 @@ function splitWaMenu(text, maxLength = 3500) {
   return chunks;
 }
 
-module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, SECTIONS: mergedSections() };
+module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, WA_TEXT_LIMIT, SECTIONS: mergedSections() };
