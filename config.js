@@ -21,7 +21,7 @@ module.exports = {
   OMDB_API_KEY: process.env.OMDB_API_KEY || "",
 
   MENU_IMAGE: path.join(__dirname, "assets", "dentsu-mini-bot-avatar.jpg"),
-  MENU_IMAGE_FALLBACK: "",
+  MENU_IMAGE_FALLBACK: "https://ganga--link--ghhzdp9sv8hk.code.run/i/3ew2ztipih.jpg",
 
   OWNERS: ["242065141056", "242050471017"],
   TELEGRAM_ADMINS: [6405611529, 8316170511],
