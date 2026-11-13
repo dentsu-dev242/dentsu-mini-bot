@@ -10,6 +10,15 @@
       phonePlaceholder: "+242 06 123 45 67", generateCode: "Générer mon code", generatingCode: "Génération du code…",
       phoneInvalid: "Entre un numéro international valide, avec l’indicatif du pays.",
       pairError: "Impossible de générer le code. Réessaie plus tard.", missingCode: "Aucun code n’a été reçu. Réessaie plus tard.",
+      errRateLimited: "Trop de demandes. Patiente quelques minutes puis réessaie.",
+      errPhoneInvalid: "Entre un numéro international valide, avec l’indicatif du pays.",
+      errPhoneCooldown: "Un code a déjà été demandé pour ce numéro. Attends 60 secondes.",
+      errPairInProgress: "Une demande de jumelage est déjà en cours pour ce numéro.",
+      errPairFailed: "WhatsApp n’a pas pu générer le code. Réessaie plus tard.",
+      errQrBusy: "Trop de sessions QR actives. Réessaie dans un instant.",
+      errQrNotFound: "Cette session QR a expiré. Génère un nouveau QR.",
+      errNotFound: "Service indisponible. Réessaie plus tard.",
+      errNetwork: "Connexion au serveur impossible. Vérifie ta connexion internet.",
       codeHeading: "TON CODE DE JUMELAGE", codeHint: "Saisis-le dans WhatsApp sur ton téléphone.",
       copyCode: "Copier le code", copied: "Code copié ✓", copyError: "Copie impossible. Sélectionne le code et copie-le manuellement.",
       steps: "WhatsApp → Appareils connectés → Connecter un appareil → Associer avec un numéro.",
@@ -37,6 +46,15 @@
       phonePlaceholder: "+242 06 123 45 67", generateCode: "Get pairing code", generatingCode: "Generating code…",
       phoneInvalid: "Enter a valid international number with its country code.",
       pairError: "Could not generate the code. Try again later.", missingCode: "No code was received. Try again later.",
+      errRateLimited: "Too many requests. Wait a few minutes and try again.",
+      errPhoneInvalid: "Enter a valid international number with its country code.",
+      errPhoneCooldown: "A code was already requested for this number. Wait 60 seconds.",
+      errPairInProgress: "A pairing request is already in progress for this number.",
+      errPairFailed: "WhatsApp could not generate the code. Try again later.",
+      errQrBusy: "Too many QR sessions are active. Try again shortly.",
+      errQrNotFound: "This QR session expired. Generate a new QR.",
+      errNotFound: "Service unavailable. Try again later.",
+      errNetwork: "Could not reach the server. Check your internet connection.",
       codeHeading: "YOUR PAIRING CODE", codeHint: "Enter it in WhatsApp on your phone.",
       copyCode: "Copy code", copied: "Code copied ✓", copyError: "Copy is unavailable. Select the code and copy it manually.",
       steps: "WhatsApp → Linked devices → Link a device → Link with phone number.",
@@ -113,6 +131,21 @@
     status.className = "status-message" + (type ? " " + type : "");
     status.hidden = false;
   }
+  // Traduit la réponse du backend (Railway) : on s'appuie sur `code`, jamais
+  // sur le texte anglais, pour que le frontend (Vercel) reste en français.
+  function serverError(data, fallbackKey) {
+    const map = {
+      rateLimited: "errRateLimited", phoneInvalid: "errPhoneInvalid",
+      phoneCooldown: "errPhoneCooldown", pairInProgress: "errPairInProgress",
+      pairFailed: "errPairFailed", qrBusy: "errQrBusy",
+      qrNotFound: "errQrNotFound", notFound: "errNotFound", badRequest: fallbackKey,
+    };
+    const key = map[data && data.code];
+    return t(key || fallbackKey);
+  }
+  function fetchFailed() {
+    return new Error(t("errNetwork"));
+  }
   function setMethod(method) {
     document.querySelectorAll("[data-method]").forEach((button) => {
       const selected = button.dataset.method === method;
@@ -161,9 +194,9 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber })
-      });
+      }).catch(() => { throw fetchFailed(); });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || t("pairError"));
+      if (!response.ok) throw new Error(serverError(data, "pairError"));
       if (!data.code) throw new Error(t("missingCode"));
       codeOutput.textContent = data.code;
       codePanel.hidden = false;
@@ -241,7 +274,7 @@
     try {
       const response = await fetch(`/api/qr/${encodeURIComponent(qrSessionId)}`, { cache: "no-store" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || t("qrFailed"));
+      if (!response.ok) throw new Error(serverError(data, "qrFailed"));
       if (data.status === "ready" && data.svg) {
         qrImage.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(data.svg);
         qrImage.hidden = false;
@@ -293,9 +326,9 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}"
-      });
+      }).catch(() => { throw fetchFailed(); });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.sessionId) throw new Error(data.error || t("qrFailed"));
+      if (!response.ok || !data.sessionId) throw new Error(serverError(data, "qrFailed"));
       qrSessionId = data.sessionId;
       await pollQr();
       if (qrSessionId && !qrTerminal) qrPoller = window.setInterval(pollQr, 1500);
