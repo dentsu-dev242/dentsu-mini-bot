@@ -20,7 +20,8 @@ check("affiché comme DENT-SU11", config.PAIRING_CODE.match(/.{1,4}/g).join("-")
 
 // Le code doit être transmis tel quel à Baileys (2e argument de requestPairingCode).
 const whatsappSrc = fs.readFileSync(path.join(__dirname, "lib", "whatsapp.js"), "utf8");
-check("WhatsApp utilise le code fixe", /requestPairingCode\(cleaned,\s*custom\)/.test(whatsappSrc));
+check("WhatsApp utilise le code fixe", /requestPairingCode\(cleaned,\s*candidate\)/.test(whatsappSrc));
+check("variante lisible U->V/O->0/I->1", /replace\(\/U\/g, "V"\)/.test(whatsappSrc));
 check("repli aléatoire si WhatsApp refuse", /requestPairingCode\(cleaned\)/.test(whatsappSrc));
 
 // Telegram et site de jumelage passent tous par startWhatsApp -> même code.
