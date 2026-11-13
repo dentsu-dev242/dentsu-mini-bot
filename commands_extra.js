@@ -1060,3 +1060,31 @@ reg(["bisou","kiss"], (ctx) => ctx.reply({ text: "Un gros bisou rien que pour to
 reg(["calin","hug"], (ctx) => ctx.reply({ text: "Je t'envoie un gros câlin bébé 🤗 — Sending you a big warm hug 💖" }), "LOVE", "Hug");
 reg(["coeur","heart"], (ctx) => ctx.reply({ text: "Mon cœur t'appartient ❤️‍🩹 — My heart belongs to you 💗" }), "LOVE", "Heart");
 
+
+// ── BUG / REPORT ─────────────────────────────────────────────────
+// Ces commandes existaient seulement dans le switch de lib/whatsapp.js,
+// donc elles n'apparaissaient dans aucune section du menu. On les enregistre
+// ici pour qu'elles soient listées sous ⿻ BUG MENU.
+async function bugMenuHandler(ctx) {
+  await ctx.reply({ text: [
+    "┌ ❏ ⫹⫺  ⌜ ʙᴜɢ sʏsᴛᴇᴍ  ⌟ ⫹⫺",
+    " |",
+    "├⫹⫺  sᴛᴀᴛᴜᴛ : 📝 ʀᴇᴘᴏʀᴛ ᴏᴘᴇɴ",
+    "├⫹⫺  ᴅᴇ́ᴄʀɪs ʟᴇ ʙᴜɢ ᴅᴜ ᴍᴇɴᴜ",
+    "├⫹⫺  ᴊᴏɪɴs ᴜɴᴇ ᴄᴀᴘᴛᴜʀᴇ ᴅ'ᴇ́ᴄʀᴀɴ",
+    "├⫹⫺  ᴏᴡɴᴇʀ : +242065141056",
+    "└ ❏",
+  ].join("\n") });
+}
+reg(["bugmenu", "bug", "bugreport", "report"], bugMenuHandler, "BUG", "Signaler un bug du menu");
+
+reg(["menuhelp", "howtomenu"], async (ctx) => {
+  await ctx.reply({ text: [
+    "╭──⧼▰▰▰▰◈  ᴀɪᴅᴇ ᴍᴇɴᴜ  ◈▰▰▰▰⧽──≽",
+    `⿻ ${ctx.prefix || "."}menu — menu complet`,
+    `⿻ ${ctx.prefix || "."}help — liste des commandes`,
+    `⿻ ${ctx.prefix || "."}bugmenu — signaler un bug`,
+    `⿻ ${ctx.prefix || "."}ping — tester le bot`,
+    "╰──⧼▰▰▰▰◈",
+  ].join("\n") });
+}, "BUG", "Aide sur le menu");

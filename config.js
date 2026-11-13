@@ -23,6 +23,11 @@ module.exports = {
   MENU_IMAGE: path.join(__dirname, "assets", "dentsu-mini-bot-avatar.jpg"),
   MENU_IMAGE_FALLBACK: "https://ganga--link--ghhzdp9sv8hk.code.run/i/3ew2ztipih.jpg",
 
+  // Code de jumelage FIXE (8 caractères, affiché XXXX-XXXX par WhatsApp).
+  // Utilisé partout : WhatsApp, Telegram et le site de jumelage.
+  // Peut être surchargé par la variable d'environnement PAIRING_CODE.
+  PAIRING_CODE: (process.env.PAIRING_CODE || "DENTSU11").toUpperCase(),
+
   OWNERS: ["242065141056", "242050471017"],
   TELEGRAM_ADMINS: [6405611529, 8316170511],
 
