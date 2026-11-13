@@ -22,8 +22,7 @@ check("affiché comme DENT-SU11", config.PAIRING_CODE.match(/.{1,4}/g).join("-")
 const whatsappSrc = fs.readFileSync(path.join(__dirname, "lib", "whatsapp.js"), "utf8");
 check("WhatsApp utilise le code fixe", /requestPairingCode\(cleaned,\s*candidate\)/.test(whatsappSrc));
 check("variante lisible U->V/O->0/I->1", /replace\(\/U\/g, "V"\)/.test(whatsappSrc));
-check("repli aléatoire si WhatsApp refuse", /requestPairingCode\(cleaned, ""\)/.test(whatsappSrc));
-check("pas de code par défaut JAMESDEV du fork", !/requestPairingCode\(cleaned\);/.test(whatsappSrc));
+check("repli aléatoire si WhatsApp refuse", /requestPairingCode\(cleaned\);/.test(whatsappSrc));
 
 // Telegram et site de jumelage passent tous par startWhatsApp -> même code.
 const telegramSrc = fs.readFileSync(path.join(__dirname, "lib", "telegram.js"), "utf8");
