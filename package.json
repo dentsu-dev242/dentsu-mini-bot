@@ -37,6 +37,7 @@
   "overrides": {
     "libsignal": "npm:libsignal@6.0.0",
     "@whiskeysockets/eslint-config": "npm:eslint-config-prettier@9.1.0",
-    "form-data": "^4.0.4"
+    "form-data": "^4.0.4",
+    "sharp": "^0.35.5"
   }
 }
