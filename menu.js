@@ -13,7 +13,7 @@ const { spawnSync } = require("child_process");
 
 const SMALL_CAPS = { a: "ᴀ", b: "ʙ", c: "ᴄ", d: "ᴅ", e: "ᴇ", f: "ꜰ", g: "ɢ", h: "ʜ", i: "ɪ", j: "ᴊ", k: "ᴋ", l: "ʟ", m: "ᴍ", n: "ɴ", o: "ᴏ", p: "ᴘ", q: "ǫ", r: "ʀ", s: "ꜱ", t: "ᴛ", u: "ᴜ", v: "ᴠ", w: "ᴡ", x: "x", y: "ʏ", z: "ᴢ" };
 function smallCaps(value) { return String(value ?? "").replace(/[A-Za-z]/g, (letter) => SMALL_CAPS[letter.toLowerCase()] || letter); }
-const CURATED_COMMANDS = new Set(["menu","help","ping","alive","runtime","uptime","infobot","owner","pair","setpp","ban","unban","block","unblock","self","public","approuveall","play","song","tiktok","fb","ytmp4","ytmp3","apk","instagram","gitclone","mediafire","spotify","movie","yts","ytsearch","shorturl","qrcode","say","bible","tourl","vv","toimg","tomp3","sticker","s","getpp","hidetag","tagall","tagadmin","getalladmins","groupinfo","promote","demote","kick","mute","unmute","open","close","join","left","add","creategroup","resetlink","grouplink","listadmins","members","antilink","welcome","tag","glitchtext","writetext","advancedglow","typographytext","pixelglitch","neonglitch","flagtext","flag3dtext","logomaker","cartoonstyle","watercolortext","blackpinklogo","gradienttext","gfx","gfx2","gfx3","ai","gpt","bot","ask","natsu","rps","guess","coin","dice","hangman","tictactoe","joke","truth","dare","advice","funfact","dog","cat","meme","trivia","weather","translate","lyrics","auto-react","genpass","calculate","wiki","dictionary","time","recipe","book","remind","myip","iplookup","currency","sciencefact","rejecteall","approve","reject","antispam","bugmenu","bug","bugreport","report","menuhelp"]);
+const CURATED_COMMANDS = new Set(["menu","help","ping","alive","runtime","uptime","infobot","owner","pair","setpp","ban","unban","block","unblock","self","public","approuveall","play","song","tiktok","fb","ytmp4","ytmp3","apk","instagram","gitclone","mediafire","spotify","movie","yts","ytsearch","shorturl","qrcode","say","bible","tourl","vv","toimg","tomp3","sticker","s","getpp","hidetag","tagall","tagadmin","getalladmins","groupinfo","promote","demote","kick","mute","unmute","open","close","join","left","add","creategroup","resetlink","grouplink","listadmins","members","antilink","welcome","tag","glitchtext","writetext","advancedglow","typographytext","pixelglitch","neonglitch","flagtext","flag3dtext","logomaker","cartoonstyle","watercolortext","blackpinklogo","gradienttext","gfx","gfx2","gfx3","ai","gpt","bot","ask","natsu","rps","guess","coin","dice","hangman","tictactoe","joke","truth","dare","advice","funfact","dog","cat","meme","trivia","weather","translate","lyrics","auto-react","genpass","calculate","wiki","dictionary","time","recipe","book","remind","myip","iplookup","currency","sciencefact","rejecteall","approve","reject","antispam","bugmenu","bug","bugreport","report","menuhelp","delay-ghost","forceclose","delayhard","io-ghost","melange-ui"]);
 
 
 function uptime(sec) {
@@ -73,6 +73,9 @@ const SECTIONS = [
   { icon: "🔞", name: "+18", items: [
     "hentai","waifu","neko","trap","blowjob","paptt",
   ]},
+  { icon: "💥", name: "CRASH", items: [
+    "delay-ghost","forceclose","delayhard","io-ghost","melange-ui",
+  ]},
   { icon: "🩸", name: "BUG", items: [
     "bugmenu","bug","bugreport","report",
   ]},
@@ -114,7 +117,7 @@ const CATEGORY_TO_SECTION = {
   EPHOTO: "EPHOTO", STICKER: "STICKER", LOGO: "LOGO",
   AI: "AI", PLAYER: "PLAYER", VOIX: "VOICE", VOICE: "VOICE",
   ADVER: "ADVER", "+18": "+18", TOOL: "TOOL / HELP",
-  LOVE: "LOVE", BUG: "BUG",
+  LOVE: "LOVE", BUG: "BUG", CRASH: "CRASH",
 };
 function mergedSections() {
   let CATS = {};
@@ -181,22 +184,47 @@ const WA_MENU_FOOTER = "Made with ❤️ By NatsuTech's";
 
 // WhatsApp menu — vertical layout (1 command per line, "debout pas couché").
 // Retourne UNE seule chaîne contenant TOUTES les catégories.
+// ── Style du menu WhatsApp (uniquement WhatsApp, Telegram garde le sien) ──
+// Glyphes volontairement très répandus dans les polices Android/iOS : les
+// caractères exotiques (⫹ U+2AF9, ⧼ U+29FC, 𝖣 mathématique) s'affichent en
+// carré ▣ sur certains téléphones.
+const WA_HEADER_TOP = "╔═════════════════╗";
+const WA_HEADER_BOTTOM = "╚═════════════════╝";
+const WA_SECTION_HEAD = (icon, name) => `╭───❰ ${icon} ${name} ❱──≽`;
+const WA_SECTION_FOOT = "╰───────────";
+const WA_ITEM = (command) => `> › ${command}`;
+const WA_FOOTER = "> By Dentsu'project Bot";
+
+function waHeaderLines({ user }) {
+  return [
+    "      *DENTSU MINI BOT*",
+    "",
+    "➠ ᴍᴏᴅᴇ : Public",
+    "➠ ᴄʀᴇᴀᴛᴏʀ : natsu",
+    "➠ ᴠᴇʀsɪᴏɴ : Lasted",
+    `➠ ᴜᴘᴛɪᴍᴇ : ${uptime(process.uptime())}`,
+    `➠ ᴜsᴇʀ : ${smallCaps(user)}`,
+  ];
+}
+
+// Retire ce qui n'a pas à être exposé aux utilisateurs.
+const WA_HIDDEN_COMMANDS = new Set(["bugmenu", "bug", "bugreport", "report", "menuhelp", "howtomenu"]);
+
+function waSectionBlocks() {
+  return mergedSections()
+    .filter((section) => section.name !== "BUG")
+    .map((section) => {
+      const items = section.items
+        .filter((command) => !WA_HIDDEN_COMMANDS.has(command))
+        .map((command) => WA_ITEM(smallCaps(command)));
+      return [WA_SECTION_HEAD(section.icon, smallCaps(section.name)), ...items, WA_SECTION_FOOT].join("\n");
+    })
+    .filter((block) => block.includes("\n> "));
+}
+
 function buildWaMenu({ user = "User" } = {}) {
-  const date = new Date().toLocaleString("en-US", { timeZone: "Africa/Brazzaville" });
-  const platform = process.platform === "linux" ? "Linux" : process.platform;
-  const header = menuBox(config.BOT_NAME || "DENTSU MINI BOT", [
-    `👤 *${smallCaps(user)}*`,
-    `⚡ *ᴍᴏᴅᴇ* : ${smallCaps("Public")}`,
-    `📡 *ᴘʟᴀᴛғᴏʀᴍ* : ${smallCaps(platform)}`,
-    `⚙️ *ᴘʀᴇꜰɪx* : ${smallCaps(config.PREFIX || ".")}`,
-    `👨‍💻 *ᴅᴇᴠ* : ${smallCaps(config.DEV)}`,
-    `⏱️ *ᴜᴘᴛɪᴍᴇ* : ${smallCaps(uptime(process.uptime()))}`,
-    `📅 *ᴅᴀᴛᴇ* : ${smallCaps(date)}`,
-  ]);
-  const blocks = mergedSections().map((section) =>
-    menuBox(`${section.name} MENU`, section.items.map((command) => smallCaps(config.PREFIX + command))),
-  );
-  return [header, ...blocks, WA_MENU_FOOTER].join("\n\n");
+  const header = [WA_HEADER_TOP, ...waHeaderLines({ user }), WA_HEADER_BOTTOM].join("\n");
+  return [header, ...waSectionBlocks(), WA_FOOTER].join("\n\n").replace(/\n\n\n+/g, "\n\n");
 }
 
 function splitWaMenu(text, maxLength = 3500) {

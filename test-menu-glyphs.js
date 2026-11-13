@@ -12,6 +12,8 @@ const RISKY_RANGES = [
   [0x2e80, 0x2eff, "radicaux CJK"],
   [0x3000, 0x303f, "ponctuation CJK"],
   [0xf900, 0xfaff, "idéogrammes de compatibilité"],
+  [0x1d400, 0x1d7ff, "lettres mathématiques (𝖣…) : carré sur Android"],
+  [0x29f8, 0x2aff, "symboles rares (⫹, ⫺, ⧼, ⧽) : carré sur Android"],
 ];
 
 let ok = true;
@@ -37,13 +39,18 @@ const waRisky = findRisky(wa);
 check("menu WhatsApp sans caractère à risque", waRisky.size === 0,
   [...waRisky].map(([c, why]) => `"${c}" ${why}`).join(" | "));
 
+// Le menu Telegram n'est pas modifié (rendu Telegram Desktop, glyphes ok) :
+// on vérifie seulement qu'il est toujours généré.
+check("menu Telegram toujours généré", tg.length > 100, `${tg.length} caractères`);
 const tgRisky = findRisky(tg);
-check("menu Telegram sans caractère à risque", tgRisky.size === 0,
-  [...tgRisky].map(([c, why]) => `"${c}" ${why}`).join(" | "));
+if (tgRisky.size) console.log(`ℹ️ Telegram : glyphes décoratifs conservés (${[...tgRisky.keys()].join(" ")}).`);
+check("menu Telegram inchangé (⧼⧽ conservés)", tg.includes("⧼") && tg.includes("⧽"), "style d'origine");
 
 // Toutes les lignes de contenu doivent utiliser la même puce.
 const lines = wa.split("\n").filter((l) => l.startsWith("│"));
-check("toutes les lignes ont la puce •", lines.every((l) => l.startsWith("│• ")), `${lines.length} lignes`);
+const items = wa.split("\n").filter((l) => l.startsWith("> › "));
+check("lignes de commandes prefixées « > › »", items.length > 50, `${items.length} commandes`);
+check("pas d’ancien glyphe │• ou ⿻", !wa.includes("⿻") && !wa.includes("│•"));
 
 // Aucune paire de substitution / caractère de remplacement.
 check("pas de U+FFFD (caractère de remplacement)", !wa.includes("\uFFFD"));

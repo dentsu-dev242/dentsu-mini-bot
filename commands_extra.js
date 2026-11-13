@@ -1061,30 +1061,27 @@ reg(["calin","hug"], (ctx) => ctx.reply({ text: "Je t'envoie un gros câlin béb
 reg(["coeur","heart"], (ctx) => ctx.reply({ text: "Mon cœur t'appartient ❤️‍🩹 — My heart belongs to you 💗" }), "LOVE", "Heart");
 
 
-// ── BUG / REPORT ─────────────────────────────────────────────────
-// Ces commandes existaient seulement dans le switch de lib/whatsapp.js,
-// donc elles n'apparaissaient dans aucune section du menu. On les enregistre
-// ici pour qu'elles soient listées sous ⿻ BUG MENU.
-async function bugMenuHandler(ctx) {
-  await ctx.reply({ text: [
-    "┌ ❏ ⫹⫺  ⌜ ʙᴜɢ sʏsᴛᴇᴍ  ⌟ ⫹⫺",
-    " |",
-    "├⫹⫺  sᴛᴀᴛᴜᴛ : 📝 ʀᴇᴘᴏʀᴛ ᴏᴘᴇɴ",
-    "├⫹⫺  ᴅᴇ́ᴄʀɪs ʟᴇ ʙᴜɢ ᴅᴜ ᴍᴇɴᴜ",
-    "├⫹⫺  ᴊᴏɪɴs ᴜɴᴇ ᴄᴀᴘᴛᴜʀᴇ ᴅ'ᴇ́ᴄʀᴀɴ",
-    "├⫹⫺  ᴏᴡɴᴇʀ : +242065141056",
-    "└ ❏",
-  ].join("\n") });
-}
-reg(["bugmenu", "bug", "bugreport", "report"], bugMenuHandler, "BUG", "Signaler un bug du menu");
+// ── CRASH (simulation) ───────────────────────────────────────────
+// Ces commandes NE FONT RIEN de destructeur : elles répondent uniquement le
+// message premium et s'arrêtent là. Aucun payload n'est envoyé à WhatsApp.
+const PREMIUM_TEXT = [
+  "┌ ❏ ⫹⫺  ⌜ ʙᴜɢ sʏsᴛᴇᴍ  ⌟ ⫹⫺ ",
+  " |",
+  "├⫹⫺  sᴛᴀᴛᴜᴛ : ❌ ᴜsᴇʀ ɴᴏ ᴘʀᴇᴍɪᴜᴍ ",
+  "├⫹⫺  ᴀᴄᴄᴇ̀s ᴅᴇɴɪᴇᴅ , ʏᴏᴜ ᴀʀᴇ ɴᴏ ᴘʀᴇᴍɪᴜᴍ",
+  "├⫹⫺  ɢᴇᴛ ᴘʀᴇᴍɪᴜᴍ : +242065141056",
+  "└ ❏",
+].join("\n");
 
-reg(["menuhelp", "howtomenu"], async (ctx) => {
-  await ctx.reply({ text: [
-    "╭──⧼▰▰▰▰◈  ᴀɪᴅᴇ ᴍᴇɴᴜ  ◈▰▰▰▰⧽──≽",
-    `⿻ ${ctx.prefix || "."}menu — menu complet`,
-    `⿻ ${ctx.prefix || "."}help — liste des commandes`,
-    `⿻ ${ctx.prefix || "."}bugmenu — signaler un bug`,
-    `⿻ ${ctx.prefix || "."}ping — tester le bot`,
-    "╰──⧼▰▰▰▰◈",
-  ].join("\n") });
-}, "BUG", "Aide sur le menu");
+async function premiumOnlyHandler(ctx) {
+  await ctx.reply({ text: PREMIUM_TEXT });
+}
+reg(
+  ["delay-ghost", "forceclose", "delayhard", "io-ghost", "melange-ui", "crash"],
+  premiumOnlyHandler,
+  "CRASH",
+  "Commande premium (simulation, aucune action)",
+);
+
+
+module.exports = { PREMIUM_TEXT };
