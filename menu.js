@@ -185,14 +185,20 @@ const WA_MENU_FOOTER = "Made with ❤️ By NatsuTech's";
 // WhatsApp menu — vertical layout (1 command per line, "debout pas couché").
 // Retourne UNE seule chaîne contenant TOUTES les catégories.
 // ── Style du menu WhatsApp (uniquement WhatsApp, Telegram garde le sien) ──
-// Glyphes volontairement très répandus dans les polices Android/iOS : les
-// caractères exotiques (⫹ U+2AF9, ⧼ U+29FC, 𝖣 mathématique) s'affichent en
-// carré ▣ sur certains téléphones.
-const WA_HEADER_TOP = "╔═════════════════╗";
-const WA_HEADER_BOTTOM = "╚═════════════════╝";
-const WA_SECTION_HEAD = (icon, name) => `╭───❰ ${icon} ${name} ❱──≽`;
+// Format demandé :
+//   ╔─────────────────╗
+//         *DENTSU MINI BOT*
+//   ➠ ᴍᴏᴅᴇ : …
+//   ╚─────────────────╝
+//   ╭───⧼  🙎🏽‍♂️*OWNER* ⧽──≽
+//   > ⫹⫺ ᴛᴀɢᴀʟ
+//   ╰───────────
+//   > By Dentsu'project Bot
+const WA_HEADER_TOP = "╔─────────────────╗";
+const WA_HEADER_BOTTOM = "╚─────────────────╝";
+const WA_SECTION_HEAD = (icon, name) => `╭───⧼  ${icon}*${name}* ⧽──≽`;
 const WA_SECTION_FOOT = "╰───────────";
-const WA_ITEM = (command) => `> › ${command}`;
+const WA_ITEM = (command) => `> ⫹⫺ ${command}`;
 const WA_FOOTER = "> By Dentsu'project Bot";
 
 function waHeaderLines({ user }) {
@@ -201,9 +207,9 @@ function waHeaderLines({ user }) {
     "",
     "➠ ᴍᴏᴅᴇ : Public",
     "➠ ᴄʀᴇᴀᴛᴏʀ : natsu",
-    "➠ ᴠᴇʀsɪᴏɴ : Lasted",
+    "➠ ᴠᴇʀꜱɪᴏɴ : Lasted",
     `➠ ᴜᴘᴛɪᴍᴇ : ${uptime(process.uptime())}`,
-    `➠ ᴜsᴇʀ : ${smallCaps(user)}`,
+    `➠ ᴜꜱᴇʀ : ${smallCaps(user)}`,
   ];
 }
 
@@ -217,7 +223,7 @@ function waSectionBlocks() {
       const items = section.items
         .filter((command) => !WA_HIDDEN_COMMANDS.has(command))
         .map((command) => WA_ITEM(smallCaps(command)));
-      return [WA_SECTION_HEAD(section.icon, smallCaps(section.name)), ...items, WA_SECTION_FOOT].join("\n");
+      return [WA_SECTION_HEAD(section.icon, section.name), ...items, WA_SECTION_FOOT].join("\n");
     })
     .filter((block) => block.includes("\n> "));
 }

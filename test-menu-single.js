@@ -41,8 +41,8 @@ const { sendWaMenuMessage } = require("./lib/whatsapp");
   check("longueur < limite texte WhatsApp", text.length <= WA_TEXT_LIMIT, `${text.length} / ${WA_TEXT_LIMIT}`);
   check("longueur < 65535 (1 message)", text.length < 65535, `${text.length}`);
   check("retourne la longueur", len === text.length, `${len}`);
-  check("toutes les catégories présentes", visible.every((s) => text.includes(sc(s.name))), visible.map((s) => s.name).join(", "));
-  const missing = expected.filter((c) => !text.includes(`> › ${sc(c)}`));
+  check("toutes les catégories présentes", visible.every((s) => text.includes(`*${s.name}*`)), visible.map((s) => s.name).join(", "));
+  const missing = expected.filter((c) => !text.includes(`> ⫹⫺ ${sc(c)}`));
   check(`toutes les commandes présentes (${expected.length})`, missing.length === 0, missing.length ? "manquantes: " + missing.join(", ") : "");
 
   console.log(`\nMenu: ${text.length} caractères, ${SECTIONS.length} sections, ${expected.length} commandes.`);

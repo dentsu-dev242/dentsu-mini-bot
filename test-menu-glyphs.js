@@ -13,7 +13,10 @@ const RISKY_RANGES = [
   [0x3000, 0x303f, "ponctuation CJK"],
   [0xf900, 0xfaff, "idéogrammes de compatibilité"],
   [0x1d400, 0x1d7ff, "lettres mathématiques (𝖣…) : carré sur Android"],
-  [0x29f8, 0x2aff, "symboles rares (⫹, ⫺, ⧼, ⧽) : carré sur Android"],
+  // ⧼ (U+29FC) / ⧽ (U+29FD) / ⫹ (U+2AF9) / ⫺ (U+2AFA) sont demandés
+  // explicitement par le style du menu WhatsApp : on ne les bloque pas, mais on
+  // les signale pour mémoire.
+  [0x2ff0, 0x2fff, "traits idéographiques (⿻…) : carré ▣"],
 ];
 
 let ok = true;
@@ -47,10 +50,11 @@ if (tgRisky.size) console.log(`ℹ️ Telegram : glyphes décoratifs conservés 
 check("menu Telegram inchangé (⧼⧽ conservés)", tg.includes("⧼") && tg.includes("⧽"), "style d'origine");
 
 // Toutes les lignes de contenu doivent utiliser la même puce.
-const lines = wa.split("\n").filter((l) => l.startsWith("│"));
-const items = wa.split("\n").filter((l) => l.startsWith("> › "));
-check("lignes de commandes prefixées « > › »", items.length > 50, `${items.length} commandes`);
-check("pas d’ancien glyphe │• ou ⿻", !wa.includes("⿻") && !wa.includes("│•"));
+const lines = wa.split("\n").filter((l) => l.startsWith("> ⫹⫺ "));
+const items = wa.split("\n").filter((l) => l.startsWith("> ⫹⫺ "));
+check("lignes de commandes prefixées « > ⫹⫺ »", items.length > 50, `${items.length} commandes`);
+check("format demandé présent (╔ ╚ ╭ ╰ ⧼ ⧽)", ["╔", "╚", "╭", "╰", "⧼", "⧽"].every((c) => wa.includes(c)));
+check("pas d’anciens glyphes ⿻ / │• / ❰", !wa.includes("⿻") && !wa.includes("│•") && !wa.includes("❰"));
 
 // Aucune paire de substitution / caractère de remplacement.
 check("pas de U+FFFD (caractère de remplacement)", !wa.includes("\uFFFD"));
