@@ -44,6 +44,8 @@ module.exports = {
     whatsappChannel: "https://whatsapp.com/channel/0029VbC1s7fFnSz1YhZYc01h",
     telegramChannel: "https://t.me/DPLOIEMENT_DUN_BOT2",
     telegramBot: process.env.TELEGRAM_BOT_URL || "https://t.me/DPLOIEMENT_DUN_BOT2",
+    // Site public du bot (bouton WEBSITE du menu WhatsApp).
+    website: process.env.WEBSITE_URL || "https://dentsu-mini-bot.vercel.app",
     webPairing: process.env.WEB_PAIRING_URL || process.env.RENDER_EXTERNAL_URL || (process.env.RAILWAY_PUBLIC_DOMAIN && "https://" + process.env.RAILWAY_PUBLIC_DOMAIN) || "https://dentsu-mini-bot.onrender.com",
   },
 

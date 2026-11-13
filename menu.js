@@ -176,6 +176,9 @@ function buildTelegramMenu() {
 // Le menu complet doit tenir dans UN SEUL message : on ne découpe plus.
 const WA_TEXT_LIMIT = 65535;
 
+// Ligne de pied de page du menu (remplace « Powered by Sanezo X Ultra »).
+const WA_MENU_FOOTER = "Made with ❤️ By NatsuTech's";
+
 // WhatsApp menu — vertical layout (1 command per line, "debout pas couché").
 // Retourne UNE seule chaîne contenant TOUTES les catégories.
 function buildWaMenu({ user = "User" } = {}) {
@@ -193,7 +196,7 @@ function buildWaMenu({ user = "User" } = {}) {
   const blocks = mergedSections().map((section) =>
     menuBox(`${section.name} MENU`, section.items.map((command) => smallCaps(config.PREFIX + command))),
   );
-  return [header, ...blocks].join("\n\n");
+  return [header, ...blocks, WA_MENU_FOOTER].join("\n\n");
 }
 
 function splitWaMenu(text, maxLength = 3500) {
@@ -215,4 +218,4 @@ function splitWaMenu(text, maxLength = 3500) {
   return chunks;
 }
 
-module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, WA_TEXT_LIMIT, SECTIONS: mergedSections() };
+module.exports = { buildTelegramMenu, buildWaMenu, splitWaMenu, uptime, WA_TEXT_LIMIT, WA_MENU_FOOTER, SECTIONS: mergedSections() };
