@@ -32,6 +32,8 @@ const { sendWaMenuMessage } = require("./lib/whatsapp");
   check("1 seul appel sendMessage", calls.length === 1, `appels=${calls.length}`);
   check("type = texte (pas de légende d'image)", !!(calls[0] && calls[0][1] && calls[0][1].text) && !calls[0][1].caption);
   check("quoted transmis", calls[0] && calls[0][2] && calls[0][2].quoted === quoted);
+  const ad = calls[0] && calls[0][1] && calls[0][1].contextInfo && calls[0][1].contextInfo.externalAdReply;
+  check("photo du bot jointe (externalAdReply.thumbnail)", !!(ad && Buffer.isBuffer(ad.thumbnail) && ad.thumbnail.length > 1000), ad ? `${ad.thumbnail?.length} octets` : "absent");
   check("le message contient TOUT le menu", calls[0] && calls[0][1].text === text);
   check("longueur < limite texte WhatsApp", text.length <= WA_TEXT_LIMIT, `${text.length} / ${WA_TEXT_LIMIT}`);
   check("longueur < 65535 (1 message)", text.length < 65535, `${text.length}`);
