@@ -157,7 +157,7 @@ function totalCommands() {
 
 function menuBox(title, lines) {
   const heading = `╭──⧼ ス ${smallCaps(title)} ⧽──≽`;
-  const body = lines.map((line) => `│⿻ ${line}`).join("\n");
+  const body = lines.map((line) => `│• ${line}`).join("\n");
   return `${heading}\n${body}\n╰───────────`;
 }
 
